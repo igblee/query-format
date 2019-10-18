@@ -1,13 +1,16 @@
 /* eslint-disable */
 import { Base64 } from 'js-base64'
 
-export const nullBase64 = Base64.encode('[object Null]')
-export const undefinedBase64 = Base64.encode('[object Undefined]')
-export const arrayBase64 = Base64.encode('[object Array]')
-export const objectBase64 = Base64.encode('[object Object]')
-export const numberBase64 = Base64.encode('[object Number]')
-export const stringBase64 = Base64.encode('[object String]')
-export const otherBase64 = Base64.encode('[object Other]')
+export const undefinedBase64 = Base64.encode('TYPE_1')
+export const nullBase64 = Base64.encode('TYPE_2')
+export const numberBase64 = Base64.encode('TYPE_3')
+export const stringBase64 = Base64.encode('TYPE_4')
+export const arrayBase64 = Base64.encode('TYPE_5')
+export const objectBase64 = Base64.encode('TYPE_6')
+export const otherBase64 = Base64.encode('TYPE_7')
+
+export const separatorLen = 3
+
 export function myTypeOf(data) {
   return Object.prototype.toString.call(data)
 }
@@ -74,4 +77,9 @@ export function getQueryFormatType(data) {
   }
   return '[object Other]'
 }
-export const separatorLen = 3
+export function transformData(data, encode) {
+  if (encode) {
+    return window.encodeURIComponent(data)
+  }
+  return data
+}

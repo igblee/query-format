@@ -6,6 +6,7 @@ import {
   stringifyJSONFn,
   parseJSONFn,
   getQueryFormatType,
+  transformData,
   undefinedBase64,
   nullBase64,
   arrayBase64,
@@ -15,8 +16,14 @@ import {
   otherBase64,
   separatorLen
 } from './util'
+export default class QueryFormat {
+  constructor(encode) {
+    this.decodeQuery = data => decodeQuery(data, encode)
+    this.encodeQuery = data => encodeQuery(data, encode)
+  }
+}
 
-export function decodeQuery(data) {
+function decodeQuery(data, encode) {
   const type = myTypeOf(data)
   if (type !== '[object Object]') {
     throw new Error('the input must be object')
@@ -24,7 +31,10 @@ export function decodeQuery(data) {
   const tData = cloneParamFn(data)
   const res = {}
   Object.keys(data).forEach(item => {
-    const value = window.decodeURIComponent(tData[item])
+    let value = tData[item]
+    if (encode) {
+      value = window.decodeURIComponent(tData[item])
+    }
     const valueType = getQueryFormatType(value)
     if (valueType === '[object Undefined]') {
       res[item] = undefined
@@ -35,14 +45,12 @@ export function decodeQuery(data) {
       const tVal = parseJSONFn(value.slice(0, index - separatorLen), null)
       res[item] = tVal
     } else if (valueType === '[object Object]') {
-      console.log('TCL: decodeQuery -> valueType', valueType)
       const index = value.indexOf(objectBase64)
-      console.log('TCL: decodeQuery -> index', index)
       const tVal = parseJSONFn(value.slice(0, index - separatorLen), null)
       res[item] = tVal
     } else if (valueType === '[object Number]') {
       const index = value.indexOf(numberBase64)
-      const tVal = parseInt(value.slice(0, index - separatorLen))
+      const tVal = parseFloat(value.slice(0, index - separatorLen))
       res[item] = tVal
     } else if (valueType === '[object String]') {
       const index = value.indexOf(stringBase64)
@@ -57,7 +65,7 @@ export function decodeQuery(data) {
   return res
 }
 
-export function encodeQuery(data) {
+function encodeQuery(data, encode) {
   const type = myTypeOf(data)
   if (type !== '[object Object]') {
     throw new Error('the input must be object')
@@ -68,23 +76,25 @@ export function encodeQuery(data) {
     const value = tData[item]
     const valueType = myTypeOf(value)
     if (valueType === '[object Undefined]') {
-      res[item] = window.encodeURIComponent(`${value}(~)${undefinedBase64}`)
+      res[item] = transformData(`${value}(~)${undefinedBase64}`, encode)
     } else if (valueType === '[object Null]') {
-      res[item] = window.encodeURIComponent(`${value}(~)${nullBase64}`)
+      res[item] = transformData(`${value}(~)${nullBase64}`, encode)
     } else if (valueType === '[object Array]') {
-      res[item] = window.encodeURIComponent(
-        `${stringifyJSONFn(value, null)}(~)${arrayBase64}`
+      res[item] = transformData(
+        `${stringifyJSONFn(value, null)}(~)${arrayBase64}`,
+        encode
       )
     } else if (valueType === '[object Object]') {
-      res[item] = window.encodeURIComponent(
-        `${stringifyJSONFn(value, null)}(~)${objectBase64}`
+      res[item] = transformData(
+        `${stringifyJSONFn(value, null)}(~)${objectBase64}`,
+        encode
       )
     } else if (valueType === '[object Number]') {
-      res[item] = window.encodeURIComponent(`${value}(~)${numberBase64}`)
+      res[item] = transformData(`${value}(~)${numberBase64}`, encode)
     } else if (valueType === '[object String]') {
-      res[item] = window.encodeURIComponent(`${value}(~)${stringBase64}`)
+      res[item] = transformData(`${value}(~)${stringBase64}`, encode)
     } else {
-      res[item] = window.encodeURIComponent(`${value}(~)${otherBase64}`)
+      res[item] = transformData(`${value}(~)${otherBase64}`, encode)
     }
   })
   return res
