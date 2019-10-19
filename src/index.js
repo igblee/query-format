@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import {
   myTypeOf,
   cloneParamFn,
@@ -14,10 +12,10 @@ import {
   stringBase64,
   numberBase64,
   otherBase64,
-  separatorLen
+  separator
 } from './util'
 export default class QueryFormat {
-  constructor(encode) {
+  constructor(encode = false) {
     this.decodeQuery = data => decodeQuery(data, encode)
     this.encodeQuery = data => encodeQuery(data, encode)
   }
@@ -31,10 +29,7 @@ function decodeQuery(data, encode) {
   const tData = cloneParamFn(data)
   const res = {}
   Object.keys(data).forEach(item => {
-    let value = tData[item]
-    if (encode) {
-      value = window.decodeURIComponent(tData[item])
-    }
+    const value = transformData(tData[item], encode, false)
     const valueType = getQueryFormatType(value)
     if (valueType === '[object Undefined]') {
       res[item] = undefined
@@ -42,23 +37,23 @@ function decodeQuery(data, encode) {
       res[item] = null
     } else if (valueType === '[object Array]') {
       const index = value.indexOf(arrayBase64)
-      const tVal = parseJSONFn(value.slice(0, index - separatorLen), null)
+      const tVal = parseJSONFn(value.slice(0, index - separator.length), null)
       res[item] = tVal
     } else if (valueType === '[object Object]') {
       const index = value.indexOf(objectBase64)
-      const tVal = parseJSONFn(value.slice(0, index - separatorLen), null)
+      const tVal = parseJSONFn(value.slice(0, index - separator.length), null)
       res[item] = tVal
     } else if (valueType === '[object Number]') {
       const index = value.indexOf(numberBase64)
-      const tVal = parseFloat(value.slice(0, index - separatorLen))
+      const tVal = parseFloat(value.slice(0, index - separator.length))
       res[item] = tVal
     } else if (valueType === '[object String]') {
       const index = value.indexOf(stringBase64)
-      const tVal = value.slice(0, index - separatorLen)
+      const tVal = value.slice(0, index - separator.length)
       res[item] = tVal
     } else {
       const index = value.indexOf(otherBase64)
-      const tVal = value.slice(0, index - separatorLen)
+      const tVal = value.slice(0, index - separator.length)
       res[item] = tVal
     }
   })
@@ -76,25 +71,47 @@ function encodeQuery(data, encode) {
     const value = tData[item]
     const valueType = myTypeOf(value)
     if (valueType === '[object Undefined]') {
-      res[item] = transformData(`${value}(~)${undefinedBase64}`, encode)
+      res[item] = transformData(
+        `${value}${separator}${undefinedBase64}`,
+        encode,
+        true
+      )
     } else if (valueType === '[object Null]') {
-      res[item] = transformData(`${value}(~)${nullBase64}`, encode)
+      res[item] = transformData(
+        `${value}${separator}${nullBase64}`,
+        encode,
+        true
+      )
     } else if (valueType === '[object Array]') {
       res[item] = transformData(
-        `${stringifyJSONFn(value, null)}(~)${arrayBase64}`,
-        encode
+        `${stringifyJSONFn(value, null)}${separator}${arrayBase64}`,
+        encode,
+        true
       )
     } else if (valueType === '[object Object]') {
       res[item] = transformData(
-        `${stringifyJSONFn(value, null)}(~)${objectBase64}`,
-        encode
+        `${stringifyJSONFn(value, null)}${separator}${objectBase64}`,
+        encode,
+        true
       )
     } else if (valueType === '[object Number]') {
-      res[item] = transformData(`${value}(~)${numberBase64}`, encode)
+      res[item] = transformData(
+        `${value}${separator}${numberBase64}`,
+        encode,
+        true
+      )
     } else if (valueType === '[object String]') {
-      res[item] = transformData(`${value}(~)${stringBase64}`, encode)
+      res[item] = transformData(
+        `${value}${separator}${stringBase64}`,
+        encode,
+        true
+      )
     } else {
-      res[item] = transformData(`${value}(~)${otherBase64}`, encode)
+      res[item] = transformData(
+        `${value}${separator}${otherBase64}`,
+        encode,
+        true
+      )
     }
   })
   return res

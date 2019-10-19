@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Base64 } from 'js-base64'
 
 export const undefinedBase64 = Base64.encode('TYPE_1')
@@ -9,7 +8,7 @@ export const arrayBase64 = Base64.encode('TYPE_5')
 export const objectBase64 = Base64.encode('TYPE_6')
 export const otherBase64 = Base64.encode('TYPE_7')
 
-export const separatorLen = 3
+export const separator = '_'
 
 export function myTypeOf(data) {
   return Object.prototype.toString.call(data)
@@ -77,9 +76,13 @@ export function getQueryFormatType(data) {
   }
   return '[object Other]'
 }
-export function transformData(data, encode) {
+export function transformData(data, encode, option) {
   if (encode) {
-    return window.encodeURIComponent(data)
+    if (option) {
+      return Base64.encode(data)
+    } else {
+      return Base64.decode(data)
+    }
   }
   return data
 }
