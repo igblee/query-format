@@ -16,5 +16,5 @@ const query = {
 const res1 = format.encodeQuery(query)
 console.log('TCL: res1', res1)
 const res2 = format.decodeQuery(res1)
-console.log('TCL: res2', res2)
+console.log('TCL: res2', res2) // res2.result 是解析结果， res2.flag 表示解析是否正常(true代表正常),res.failedItems代表解析失败项
 ```

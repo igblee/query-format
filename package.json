@@ -1,6 +1,6 @@
 {
   "name": "@glennlee/query-format",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "format query",
   "main": "dist/main.js",
   "scripts": {

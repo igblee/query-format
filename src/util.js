@@ -89,3 +89,5 @@ export function transformData(data, encode, option) {
   }
   return data
 }
+export const FLAG = 'flag'
+export const FAILED_ITEMS = 'failedItems'

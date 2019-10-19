@@ -12,7 +12,9 @@ import {
   stringBase64,
   numberBase64,
   otherBase64,
-  separator
+  separator,
+  FAILED_ITEMS,
+  FLAG
 } from './util'
 export default class QueryFormat {
   constructor(encode = false) {
@@ -28,33 +30,36 @@ function decodeQuery(data, encode) {
   }
   const tData = cloneParamFn(data)
   const res = {}
+  res[FLAG] = true
+  res[FAILED_ITEMS] = []
+  res.result = {}
   Object.keys(data).forEach(item => {
     const value = transformData(tData[item], encode, false)
     const valueType = getQueryFormatType(value)
     if (valueType === '[object Undefined]') {
-      res[item] = undefined
+      res.result[item] = undefined
     } else if (valueType === '[object Null]') {
-      res[item] = null
+      res.result[item] = null
     } else if (valueType === '[object Array]') {
       const index = value.indexOf(arrayBase64)
       const tVal = parseJSONFn(value.slice(0, index - separator.length), null)
-      res[item] = tVal
+      res.result[item] = tVal
     } else if (valueType === '[object Object]') {
       const index = value.indexOf(objectBase64)
       const tVal = parseJSONFn(value.slice(0, index - separator.length), null)
-      res[item] = tVal
+      res.result[item] = tVal
     } else if (valueType === '[object Number]') {
       const index = value.indexOf(numberBase64)
       const tVal = parseFloat(value.slice(0, index - separator.length))
-      res[item] = tVal
+      res.result[item] = tVal
     } else if (valueType === '[object String]') {
       const index = value.indexOf(stringBase64)
       const tVal = value.slice(0, index - separator.length)
-      res[item] = tVal
+      res.result[item] = tVal
     } else if (valueType === '[object Other]') {
       const index = value.indexOf(otherBase64)
       const tVal = value.slice(0, index - separator.length)
-      res[item] = tVal
+      res.result[item] = tVal
     } else {
       console.warn(
         '[query-format warn]',
@@ -62,7 +67,9 @@ function decodeQuery(data, encode) {
         '\n',
         `${item}: ${value}`
       )
-      res[item] = value
+      res.result[item] = value
+      res[FLAG] = false
+      res[FAILED_ITEMS] = [...res[FAILED_ITEMS], { [item]: value }]
     }
   })
   return res
