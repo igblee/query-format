@@ -74,7 +74,10 @@ export function getQueryFormatType(data) {
   if (~tData.indexOf(`${stringBase64}`)) {
     return '[object String]'
   }
-  return '[object Other]'
+  if (~tData.indexOf(`${otherBase64}`)) {
+    return '[object Other]'
+  }
+  return '[object Unknown]'
 }
 export function transformData(data, encode, option) {
   if (encode) {

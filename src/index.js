@@ -51,10 +51,18 @@ function decodeQuery(data, encode) {
       const index = value.indexOf(stringBase64)
       const tVal = value.slice(0, index - separator.length)
       res[item] = tVal
-    } else {
+    } else if (valueType === '[object Other]') {
       const index = value.indexOf(otherBase64)
       const tVal = value.slice(0, index - separator.length)
       res[item] = tVal
+    } else {
+      console.warn(
+        '[query-format warn]',
+        'cannot indentitify the type of the value:',
+        '\n',
+        `${item}: ${value}`
+      )
+      res[item] = value
     }
   })
   return res
